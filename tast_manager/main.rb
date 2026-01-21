@@ -1,10 +1,15 @@
+# Console-based interface for the Task Manager
+# Users can add, list, complete, delete, and update tasks
+
 require_relative 'task_manager'
 require_relative "task"
 
+# Initialize the TaskManager and load tasks from JSON
 task_manager = TaskManager.new
 task_manager.load_tasks
 
 loop do
+  # Display menu options
   puts "Меню:"
   puts "1. Додати задачу"
   puts "2. Показати всі задачі"
@@ -15,6 +20,7 @@ loop do
   puts "7. Пошук одної задачі"
   puts "0. Вийти"
 
+  print "\nНапишіть ваш вибір: "
   choice = gets.chomp
 
   case choice
@@ -31,22 +37,20 @@ loop do
 
   when "2"
     task = task_manager.list_tasks
-
     if task.empty?
       puts "Список задач порожній"
     else
+      puts "-Всі задачі-"
       task.each do |task|
         puts "ID: #{task.id}, Назва: #{task.title}, Опис: #{task.description}, Статус: #{task.status}, Створено: #{task.created_at}"
       end
-
+      puts "------------"
     end
-
 
   when "3"
   puts "Введіть ID задачі яку треба завершити:"
   id = gets.chomp.to_i
   task_manager.complete_task(id)
-
 
   when "4"
     puts "Введіть ID задачі яку треба видалити:"
@@ -56,7 +60,6 @@ loop do
   when "5"
     puts "Ведіть ID задачі в якій треба змінити назву:"
     id = gets.chomp.to_i
-
     puts "Введіть нову назву:"
     new_title = gets.chomp
     task_manager.update_title(id, new_title)
@@ -64,14 +67,13 @@ loop do
   when '6'
     puts "Введіть ID задачі в якій треба змінити опис:"
     id = gets.chomp.to_i
-
     puts "Введіть новий опис:"
     new_description = gets.chomp
     task_manager.update_description(id, new_description)
+
   when '7'
     puts "Введіть ID задачі яку хочете знайти"
     id = gets.chomp.to_i
-
     task = task_manager.find_task_by_id(id)
     if task
       puts "ID: #{task.id}, Назва: #{task.title}, Опис: #{task.description}, Статус: #{task.status}, Створено: #{task.created_at}"

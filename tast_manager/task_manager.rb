@@ -1,13 +1,14 @@
+# Manages a list of tasks: add, update, complete, delete, save/load to JSON
+
 require 'json'
-
-
 
 class TaskManager
   def initialize
-    @tasks = []
-    @next_id = 1
+    @tasks = []          # Array to store all Task objects
+    @next_id = 1         # Track the next task ID
   end
 
+  # Add a new task and save to JSON
   def add_task(task)
     task.id = @next_id
     @tasks << task
@@ -15,9 +16,12 @@ class TaskManager
     save_tasks
   end
 
+  # Find task by ID
   def find_task_by_id(id)
     @tasks.find { |task| task.id == id }
   end
+
+  # Mark a task as completed
   def complete_task(id)
     task = find_task_by_id(id)
     if task
@@ -32,6 +36,8 @@ class TaskManager
       puts "Задача не знайдена"
     end
   end
+
+  # Delete a task
   def delete_task(id)
     before_count = @tasks.count
     @tasks.delete_if { |task| task.id == id }
@@ -44,9 +50,13 @@ class TaskManager
       puts "Задача не знайдена"
     end
   end
+
+  # List all tasks
   def list_tasks
     @tasks
   end
+
+  # Update task title
   def update_title(id, new_title)
     task = find_task_by_id(id)
     if task
@@ -56,6 +66,8 @@ class TaskManager
       puts "Завдання не знайдено"
     end
   end
+
+  # Update task description
   def update_description(id, new_description)
     task = find_task_by_id(id)
     if task
@@ -65,39 +77,24 @@ class TaskManager
       puts "Завдання не знайдено"
     end
   end
-  #Json
+
+  # Save tasks to JSON file
   def save_tasks
     tasks_array = @tasks.map { |task| task.to_h }
-
-    begin
-      File.open("tasks.json", "w") do |file|
-        file.write(JSON.pretty_generate(tasks_array))
-      end
-    rescue StandardError => e
-      puts "Помилка при збереженні задач: #{e.message}"
-    end
+    Storage.save(tasks_array)
   end
-  def load_tasks
-    return unless File.exist?("tasks.json")
-    begin
-      File.open("tasks.json", "r") do |file|
-        tasks_array = JSON.parse(file.read)
 
-        tasks_array.each do |task_hash|
-          task = Task.new(task_hash["title"], task_hash["description"])
-          task.id = task_hash["id"]
-          task.status = task_hash["status"]
-          task.created_at = task_hash["created_at"]
-          @tasks << task
-        end
-      end
-      # fix id
-      @next_id = @tasks.map(&:id).max + 1
-    rescue JSON::ParserError => e
-      puts "Помилка: не вдалось прочитати JSON. Файл пошкоджений"
-      puts "Деталі: #{e.message}"
-    rescue StandardError => e
-      puts "Щось пішло не так: #{e.message}"
+  # Load tasks from JSON file
+  def load_tasks
+    tasks_array = Storage.load
+    tasks_array.each do |task_hash|
+      task = Task.new(task_hash["title"], task_hash["description"])
+      task.id = task_hash["id"]
+      task.status = task_hash["status"]
+      task.created_at = task_hash["created_at"]
+
+      @tasks << task
     end
+    @next_id = @tasks.map(&:id).max + 1 unless @tasks.empty?
   end
 end
