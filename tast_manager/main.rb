@@ -2,6 +2,7 @@ require_relative 'task_manager'
 require_relative "task"
 
 task_manager = TaskManager.new
+task_manager.load_tasks
 
 loop do
   puts "Меню:"

@@ -1,7 +1,7 @@
 
 class Task
-  attr_reader :description, :created_at
-  attr_accessor :id, :title, :status
+  attr_reader :description
+  attr_accessor :id, :title, :status, :created_at
   def initialize(title, description)
     @id = nil
     @title = title
